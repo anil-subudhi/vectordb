@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 from pprint import pprint
 from typing import List, Sequence, Union
+from chromadb.utils import embedding_functions
 
 import chromadb
 from openai import OpenAI
@@ -67,12 +68,19 @@ class OpenAIEmbeddingFunction:
 
 
 def main() -> None:
+    
+
+
+
     embedding_fn = OpenAIEmbeddingFunction()
     client = chromadb.PersistentClient(path="./chroma_db")
     collection = client.get_or_create_collection(
         name="Students_OpenAI",
         embedding_function=embedding_fn,
     )
+
+ 
+
 
     student_info = (
         "Alexandra Thompson, a 19-year-old computer science sophomore with a 3.7 GPA, "
@@ -99,6 +107,41 @@ def main() -> None:
         "systems in the world."
     )
 
+    # openai_ef = embedding_functions.OpenAIEmbeddingFunction(
+    #     api_key="YOUR_OPENAI_API_KEY",
+    #     model_name="text-embedding-3-small"
+    # )
+    # students_embeddings = openai_ef([student_info, club_info, university_info])
+    # print(students_embeddings)
+    #[[-0.01015068031847477, 0.0070903063751757145, 0.010579396970570087, -0.04118313640356064, 0.0011583581799641252, 0.026857420802116394,....],]
+
+
+    # collection2 = client.get_or_create_collection(name="Students2")
+
+    # collection2.add(
+    #     embeddings = students_embeddings,
+    #     documents = [student_info, club_info, university_info],
+    #     metadatas = [{"source": "student info"},{"source": "club info"},{'source':'university info'}],
+    #     ids = ["id1", "id2", "id3"]
+    # )
+    
+    
+    # collection2 = client.get_or_create_collection(name="Students2",embedding_function=openai_ef)
+
+    # collection2.add(
+    #     documents = [student_info, club_info, university_info],
+    #     metadatas = [{"source": "student info"},{"source": "club info"},{'source':'university info'}],
+    #     ids = ["id1", "id2", "id3"]
+    # )
+    
+    # results = collection2.query(
+    # query_texts=["What is the student name?"],
+    # n_results=2
+    # )
+
+    # results
+
+
     collection.upsert(
         documents=[student_info, club_info, university_info],
         metadatas=[
@@ -108,6 +151,19 @@ def main() -> None:
         ],
         ids=["student_profile", "chess_club", "university_profile"],
     )
+
+    #collection.count()
+   
+    # Updating and Removing Data
+
+    # collection.update(
+    #     ids=["student_profile"],
+    #     documents=["Kristiane Carina, a 19-year-old computer science sophomore with a 3.7 GPA"],
+    #     metadatas=[{"source": "student info"}],
+    # )
+
+    # Remove record
+    collection.delete(ids = ['student_profile'])
 
     print("Top matches for 'student name' question using OpenAI embeddings:\n")
     results = collection.query(
